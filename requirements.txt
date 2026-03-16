@@ -1,0 +1,9 @@
+# HTTP 요청 및 웹 스크래핑
+requests
+beautifulsoup4
+
+# AI 필터링 (Gemini)
+google-generativeai
+
+# 환경변수 관리
+python-dotenv

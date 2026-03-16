@@ -1,0 +1,29 @@
+# 민감한 정보
+.env
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# 실행 중 생성되는 파일
+sent_items.json
+
+# 데이터 파일
+*.xls
+*.xlsx
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# 로그
+*.log
