@@ -9,8 +9,6 @@ on:
 jobs:
   scrape-and-notify:
     runs-on: ubuntu-latest
-    env:
-      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true  # Node.js 24 사용
     
     steps:
     - name: 코드 체크아웃

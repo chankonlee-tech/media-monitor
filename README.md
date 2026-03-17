@@ -283,6 +283,19 @@ media_monitor/
 - 정상적인 동작입니다 (continue-on-error 설정으로 계속 진행)
 - 다음 실행부터는 artifact가 정상적으로 생성되어 중복 방지가 작동합니다
 
+### Node.js 경고
+
+**증상**: `Node.js 20 actions are deprecated`
+
+**원인**:
+- GitHub Actions가 Node.js 20에서 24로 전환 중 (2026년 6월 2일부터 강제 적용)
+- 사용 중인 actions(checkout, setup-python 등)가 아직 Node.js 24를 완전히 지원하지 않음
+
+**해결 방법**:
+- ⚠️ **2026년 6월 이전까지는 정상 작동하므로 무시해도 됩니다**
+- GitHub이 해당 actions를 자동으로 업데이트할 예정입니다
+- 경고는 미래의 deprecation을 알리는 것일 뿐, 현재 기능에는 영향이 없습니다
+
 ### 언론사가 필터링되지 않는 경우
 
 1. **리스트 확인**: `python test_media_list.py`로 해당 언론사가 포함되어 있는지 확인
