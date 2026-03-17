@@ -199,6 +199,11 @@ MS Teams 메시지 전송 중...
   - 오후 6시 (UTC 09시)
 - **수동 실행**: GitHub Actions 탭에서 "Run workflow" 버튼으로 즉시 실행
 
+⚠️ **중요**: GitHub Actions의 scheduled 워크플로우는 정확한 시간을 보장하지 않습니다.
+- 무료/public 저장소는 우선순위가 낮아 **10분~1시간 정도 지연**될 수 있습니다.
+- 예상 시간에 알림이 오지 않더라도 정상 작동 중일 수 있습니다.
+- 더 정확한 시간이 필요한 경우 수동 실행을 권장합니다.
+
 ### 중복 발송 방지
 
 - **GitHub Artifact 활용**: 각 실행 시 발송한 항목을 `sent_items.json` 파일로 저장
@@ -251,6 +256,32 @@ media_monitor/
 - `[인사] 중소벤처기업부` → ✗ 제외 (정부기관)
 
 ## 🔍 트러블슈팅
+
+### GitHub Actions 스케줄 지연
+
+**증상**: 예정된 시간(10시, 12시, 14시 등)에 알림이 오지 않음
+
+**원인**: 
+- GitHub Actions의 scheduled 워크플로우는 정확한 시간을 보장하지 않습니다
+- 무료/public 저장소는 우선순위가 낮아 큐에서 대기할 수 있습니다
+- 피크 시간대에는 지연이 더 심할 수 있습니다
+
+**해결 방법**:
+1. **대기**: 보통 10분~1시간 내에 실행됩니다
+2. **수동 실행**: GitHub Actions 탭 → "Run workflow" 버튼
+3. **확인**: Actions 탭에서 워크플로우 실행 상태 및 로그 확인
+
+### Artifact 에러
+
+**증상**: `Unable to download artifact(s): Artifact not found for name: sent-items`
+
+**원인**:
+- 첫 실행이거나 이전 artifact가 만료됨 (90일 보관)
+- 워크플로우 설정 변경으로 artifact가 초기화됨
+
+**해결 방법**:
+- 정상적인 동작입니다 (continue-on-error 설정으로 계속 진행)
+- 다음 실행부터는 artifact가 정상적으로 생성되어 중복 방지가 작동합니다
 
 ### 언론사가 필터링되지 않는 경우
 

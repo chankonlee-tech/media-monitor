@@ -9,6 +9,8 @@ on:
 jobs:
   scrape-and-notify:
     runs-on: ubuntu-latest
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true  # Node.js 24 사용
     
     steps:
     - name: 코드 체크아웃
@@ -31,6 +33,16 @@ jobs:
         name: sent-items
         path: .
       continue-on-error: true  # 첫 실행 시 artifact가 없을 수 있음
+    
+    - name: 이전 발송 내역 확인
+      run: |
+        if [ -f sent_items.json ]; then
+          echo "✓ 이전 발송 내역을 성공적으로 다운로드했습니다."
+          cat sent_items.json
+        else
+          echo "⚠ 이전 발송 내역이 없습니다. 첫 실행이거나 artifact가 만료되었습니다."
+          echo "빈 발송 내역으로 시작합니다."
+        fi
     
     - name: 스크래퍼 실행
       env:
