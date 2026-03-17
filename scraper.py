@@ -592,10 +592,6 @@ def send_to_teams(personnel_data, obituary_data, webhook_url):
     Returns:
         bool: 전송 성공 여부
     """
-    # 빈 데이터 체크
-    if not personnel_data and not obituary_data:
-        print("필터링된 소식이 없어 Teams 메시지를 전송하지 않습니다.")
-        return False
     
     try:
         # 현재 시간 (한국 시간 KST = UTC+9)
@@ -629,6 +625,59 @@ def send_to_teams(personnel_data, obituary_data, webhook_url):
             "separator": True,
             "items": []
         })
+        
+        # 빈 데이터인 경우 안내 메시지 표시
+        if not personnel_data and not obituary_data:
+            card_body.append({
+                "type": "TextBlock",
+                "text": "현재까지 추가된 인사/부고가 없습니다",
+                "size": "Medium",
+                "weight": "Bolder",
+                "color": "Attention",
+                "spacing": "Medium",
+                "wrap": True,
+                "horizontalAlignment": "Center"
+            })
+            
+            card_body.append({
+                "type": "TextBlock",
+                "text": "새로운 언론계 인사/부고 소식이 올라오면 알려드리겠습니다",
+                "size": "Small",
+                "color": "Default",
+                "spacing": "Small",
+                "wrap": True,
+                "horizontalAlignment": "Center"
+            })
+            
+            # 메시지 전송 (빈 데이터)
+            adaptive_card = {
+                "type": "message",
+                "attachments": [
+                    {
+                        "contentType": "application/vnd.microsoft.card.adaptive",
+                        "content": {
+                            "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+                            "type": "AdaptiveCard",
+                            "version": "1.5",
+                            "body": card_body,
+                            "msteams": {
+                                "width": "Full"
+                            }
+                        }
+                    }
+                ]
+            }
+            
+            response = requests.post(
+                webhook_url,
+                headers={"Content-Type": "application/json"},
+                json=adaptive_card,
+                timeout=10
+            )
+            
+            response.raise_for_status()
+            print(f"✓ MS Teams 메시지 전송 완료 (새 소식 없음)")
+            return True
         
         # 인사 섹션
         if personnel_data:
@@ -1019,19 +1068,16 @@ def main():
     # MS Teams로 메시지 전송
     webhook_url = os.getenv('TEAMS_WEBHOOK_URL')
     if webhook_url:
-        if personnel_data or obituary_data:
-            print("\n" + "=" * 60)
-            print("MS Teams 메시지 전송 중...")
-            print("=" * 60)
-            success = send_to_teams(personnel_data, obituary_data, webhook_url)
-            
-            # 메시지 전송 성공 시 발송 내역 저장
-            if success:
-                print("\n발송 내역 저장 중...")
-                save_sent_items(personnel_data, obituary_data, 'sent_items.json')
-        else:
-            print("\n새로운 소식이 없어 Teams 메시지를 전송하지 않습니다.")
-            print("(필터링되었거나 모두 이전에 발송된 항목입니다)")
+        # 항상 메시지 전송 (새 항목이 없어도 알림)
+        print("\n" + "=" * 60)
+        print("MS Teams 메시지 전송 중...")
+        print("=" * 60)
+        success = send_to_teams(personnel_data, obituary_data, webhook_url)
+        
+        # 메시지 전송 성공 시 발송 내역 저장 (새 항목이 있는 경우만)
+        if success and (personnel_data or obituary_data):
+            print("\n발송 내역 저장 중...")
+            save_sent_items(personnel_data, obituary_data, 'sent_items.json')
     else:
         print("\n경고: TEAMS_WEBHOOK_URL 환경변수가 설정되지 않았습니다.")
         print("Teams 메시지 전송을 건너뜁니다.\n")
