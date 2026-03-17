@@ -7,7 +7,7 @@
 
 import requests
 from bs4 import BeautifulSoup
-from datetime import datetime
+from datetime import datetime, timedelta
 import json
 import sys
 import io
@@ -47,11 +47,12 @@ def scrape_yna_page(url, section_type):
         # BeautifulSoup으로 파싱
         soup = BeautifulSoup(response.text, 'html.parser')
         
-        # 오늘 날짜 (여러 형식)
-        today_mmdd = datetime.now().strftime('%m-%d')  # 03-16
-        today_yyyymmdd = datetime.now().strftime('%Y%m%d')  # 20260316
+        # 오늘 날짜 (한국 시간 KST = UTC+9)
+        kst_now = datetime.utcnow() + timedelta(hours=9)
+        today_mmdd = kst_now.strftime('%m-%d')  # 03-17
+        today_yyyymmdd = kst_now.strftime('%Y%m%d')  # 20260317
         
-        print(f"오늘 날짜: {today_mmdd} (YYYYMMDD: {today_yyyymmdd})")
+        print(f"오늘 날짜 (한국 시간): {today_mmdd} (YYYYMMDD: {today_yyyymmdd})")
         
         # 섹션 이름 매핑
         section_map = {
@@ -597,8 +598,8 @@ def send_to_teams(personnel_data, obituary_data, webhook_url):
         return False
     
     try:
-        # 현재 시간
-        now = datetime.now()
+        # 현재 시간 (한국 시간 KST = UTC+9)
+        now = datetime.utcnow() + timedelta(hours=9)
         current_time = now.strftime('%Y년 %m월 %d일 %H:%M')
         
         # Adaptive Card body 구성
@@ -832,10 +833,12 @@ def save_sent_items(personnel_data, obituary_data, filepath='sent_items.json'):
         filepath (str): 저장할 JSON 파일 경로
     """
     try:
+        # 한국 시간(KST) 기준으로 타임스탬프 저장
+        kst_now = datetime.utcnow() + timedelta(hours=9)
         sent_items = {
             'personnel': [{'title': item['title'], 'link': item['link']} for item in personnel_data],
             'obituary': [{'title': item['title'], 'link': item['link']} for item in obituary_data],
-            'timestamp': datetime.now().isoformat()
+            'timestamp': kst_now.isoformat()
         }
         
         with open(filepath, 'w', encoding='utf-8') as f:
