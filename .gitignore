@@ -1,29 +1,32 @@
-# 민감한 정보
+# 환경 변수 (민감한 정보 포함)
 .env
 
-# Python
+# Python 캐시
 __pycache__/
 *.py[cod]
 *$py.class
 *.so
-.Python
 
-# 실행 중 생성되는 파일
+# 발송 내역 (로컬 테스트용)
 sent_items.json
 
-# 데이터 파일
-*.xls
-*.xlsx
+# 가상환경
+venv/
+env/
+ENV/
 
-# IDE
+# IDE 설정
 .vscode/
 .idea/
 *.swp
 *.swo
 
-# OS
+# OS 파일
 .DS_Store
 Thumbs.db
 
-# 로그
+# 로그 파일
 *.log
+
+# 테스트 파일
+test_*.py
