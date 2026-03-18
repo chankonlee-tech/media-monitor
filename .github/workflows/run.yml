@@ -8,6 +8,9 @@ on:
   repository_dispatch:  # 외부 API 호출로 트리거
     types: [trigger-monitoring]
 
+permissions:
+  contents: write
+
 jobs:
   scrape-and-notify:
     runs-on: ubuntu-latest
@@ -60,3 +63,13 @@ jobs:
         path: sent_items.json
         retention-days: 90  # 90일간 보관
         overwrite: true  # 기존 artifact 덮어쓰기
+    
+    - name: 실행 기록 커밋 (워크플로우 비활성화 방지)
+      if: always()
+      run: |
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+        echo "$(date -u '+%Y-%m-%d %H:%M:%S UTC')" > last_run.txt
+        git add last_run.txt
+        git diff --staged --quiet || git commit -m "chore: 자동 실행 기록 업데이트"
+        git push
