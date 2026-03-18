@@ -73,14 +73,12 @@ jobs:
         UTC_TIME=$(date -u '+%Y-%m-%d %H:%M:%S UTC')
         
         # 실행 기록 파일 생성
-        cat > last_run.txt << 'EOF'
-마지막 실행 시간:
-- 한국시간: ${KST_TIME}
-- UTC: ${UTC_TIME}
-
-워크플로우 트리거: ${GITHUB_EVENT_NAME}
-실행 번호: #${GITHUB_RUN_NUMBER}
-EOF
+        echo "마지막 실행 시간:" > last_run.txt
+        echo "- 한국시간: ${KST_TIME}" >> last_run.txt
+        echo "- UTC: ${UTC_TIME}" >> last_run.txt
+        echo "" >> last_run.txt
+        echo "워크플로우 트리거: ${GITHUB_EVENT_NAME}" >> last_run.txt
+        echo "실행 번호: #${GITHUB_RUN_NUMBER}" >> last_run.txt
         
         git add last_run.txt
         git diff --staged --quiet || git commit -m "chore: 자동 실행 기록 업데이트 - ${KST_TIME}"
