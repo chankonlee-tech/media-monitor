@@ -73,7 +73,7 @@ jobs:
         UTC_TIME=$(date -u '+%Y-%m-%d %H:%M:%S UTC')
         
         # 실행 기록 파일 생성
-        cat > last_run.txt << EOF
+        cat > last_run.txt << 'EOF'
 마지막 실행 시간:
 - 한국시간: ${KST_TIME}
 - UTC: ${UTC_TIME}
