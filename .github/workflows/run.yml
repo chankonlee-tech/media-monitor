@@ -2,9 +2,11 @@ name: 언론계 인사/부고 모니터링
 
 on:
   schedule:
-    # 한국시간 10시, 12시, 14시, 16시, 18시 (UTC 1시, 3시, 5시, 7시, 9시)
-    - cron: '0 1,3,5,7,9 * * *'
+    # 한국시간 08시~18시까지 1시간 간격 (UTC 23시, 0-9시)
+    - cron: '0 23,0-9 * * *'
   workflow_dispatch:  # 수동 실행 가능
+  repository_dispatch:  # 외부 API 호출로 트리거
+    types: [trigger-monitoring]
 
 jobs:
   scrape-and-notify:
@@ -26,10 +28,11 @@ jobs:
         pip install -r requirements.txt
     
     - name: 이전 발송 내역 다운로드
-      uses: actions/download-artifact@v4
+      uses: dawidd6/action-download-artifact@v3
       with:
         name: sent-items
-        path: .
+        workflow: run.yml
+        if_no_artifact_found: warn
       continue-on-error: true  # 첫 실행 시 artifact가 없을 수 있음
     
     - name: 이전 발송 내역 확인
