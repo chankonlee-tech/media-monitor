@@ -1,0 +1,14 @@
+services:
+  - type: cron
+    name: media-monitor-cron
+    runtime: python
+    env: python
+    plan: free
+    schedule: "0 1,3,5,7,9 * * *"  # 한국시간 10시, 12시, 14시, 16시, 18시 (UTC+9)
+    buildCommand: pip install -r requirements.txt
+    startCommand: python scraper.py
+    envVars:
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: TEAMS_WEBHOOK_URL
+        sync: false
