@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  n8n:
+    build: .
+    container_name: media-monitor-n8n
+    restart: unless-stopped
+    ports:
+      - "5678:5678"
+    environment:
+      - N8N_BASIC_AUTH_ACTIVE=true
+      - N8N_BASIC_AUTH_USER=admin
+      - N8N_BASIC_AUTH_PASSWORD=${N8N_BASIC_AUTH_PASSWORD:-changeme}
+      - GENERIC_TIMEZONE=Asia/Seoul
+      - TZ=Asia/Seoul
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - TEAMS_WEBHOOK_URL=${TEAMS_WEBHOOK_URL}
+    volumes:
+      - n8n_data:/home/node/.n8n
+
+volumes:
+  n8n_data:
+    driver: local

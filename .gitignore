@@ -33,3 +33,7 @@ test_*.py
 
 # Render 로컬 테스트
 .render/
+
+# n8n 데이터
+n8n_data/
+.n8n/

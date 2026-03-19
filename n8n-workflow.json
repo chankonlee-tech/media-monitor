@@ -1,0 +1,149 @@
+{
+  "name": "언론계 인사/부고 모니터링",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 1,3,5,7,9 * * *"
+            }
+          ]
+        }
+      },
+      "id": "schedule-trigger",
+      "name": "스케줄 트리거",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        240,
+        300
+      ],
+      "notesInFlow": true,
+      "notes": "한국시간 10시, 12시, 14시, 16시, 18시 실행\n(UTC 1시, 3시, 5시, 7시, 9시)"
+    },
+    {
+      "parameters": {
+        "command": "cd /workspace && python scraper.py",
+        "additionalFields": {
+          "env": "GEMINI_API_KEY={{ $env.GEMINI_API_KEY }}\nTEAMS_WEBHOOK_URL={{ $env.TEAMS_WEBHOOK_URL }}"
+        }
+      },
+      "id": "execute-scraper",
+      "name": "스크래퍼 실행",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [
+        460,
+        300
+      ],
+      "notesInFlow": true,
+      "notes": "Python 스크립트 실행:\n1. 연합뉴스 스크래핑\n2. Gemini AI 필터링\n3. Teams 알림 전송"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.exitCode }}",
+              "operation": "equals",
+              "value2": "0"
+            }
+          ]
+        }
+      },
+      "id": "check-success",
+      "name": "실행 성공 확인",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        680,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "jsonOutput",
+        "jsonOutput": "={{ { \"status\": \"success\", \"timestamp\": $now.toISO(), \"message\": \"스크래퍼가 성공적으로 실행되었습니다\" } }}"
+      },
+      "id": "success-log",
+      "name": "성공 로그",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [
+        900,
+        200
+      ],
+      "notesInFlow": true,
+      "notes": "실행 성공 시 로그 기록"
+    },
+    {
+      "parameters": {
+        "mode": "jsonOutput",
+        "jsonOutput": "={{ { \"status\": \"error\", \"timestamp\": $now.toISO(), \"error\": $json.stderr, \"exitCode\": $json.exitCode } }}"
+      },
+      "id": "error-log",
+      "name": "에러 로그",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [
+        900,
+        400
+      ],
+      "notesInFlow": true,
+      "notes": "실행 실패 시 에러 로그 기록"
+    }
+  ],
+  "connections": {
+    "스케줄 트리거": {
+      "main": [
+        [
+          {
+            "node": "스크래퍼 실행",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "스크래퍼 실행": {
+      "main": [
+        [
+          {
+            "node": "실행 성공 확인",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "실행 성공 확인": {
+      "main": [
+        [
+          {
+            "node": "성공 로그",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "에러 로그",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "updatedAt": "2026-03-19T00:00:00.000Z",
+  "versionId": "1"
+}
